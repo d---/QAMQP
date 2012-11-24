@@ -26,14 +26,10 @@ void myMessageOutput(QtMsgType type, const char *msg)
 	}
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	qInstallMsgHandler(myMessageOutput);
 	QCoreApplication a(argc, argv);
-
 	
-	Test test[1];
-	Q_UNUSED(test);
-
+	Test test[10];
 	return a.exec();
 }
