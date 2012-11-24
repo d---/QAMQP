@@ -1,6 +1,5 @@
 *.user
 *.ncb
 *.suo
-/Debug
 /GeneratedFiles
 /Release
