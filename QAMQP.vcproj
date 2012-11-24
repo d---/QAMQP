@@ -372,10 +372,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\amqp_private.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\qamqp\amqp_queue.h"
 				>
 				<FileConfiguration

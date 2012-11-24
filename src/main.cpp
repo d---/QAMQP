@@ -5,27 +5,26 @@
 
 void myMessageOutput(QtMsgType type, const char *msg) {
 	switch (type) {
-	 case QtDebugMsg:
-		 fprintf(stderr, "# %s\n", msg);
-		 break;
-	 case QtWarningMsg:
-		 fprintf(stderr, "%s\n", msg);
-		 break;
-	 case QtCriticalMsg:
-		 fprintf(stderr, "Critical: %s\n", msg);
-		 break;
-	 case QtFatalMsg:
-		 fprintf(stderr, "Fatal: %s\n", msg);
-		 abort();
-	 default:
-		 break;
+	case QtDebugMsg:
+		fprintf(stderr, "INFO: %s\n", msg);
+		break;
+	case QtWarningMsg:
+		fprintf(stderr, "WARN: %s\n", msg);
+		break;
+	case QtCriticalMsg:
+		fprintf(stderr, "ERROR: %s\n", msg);
+		break;
+	case QtFatalMsg:
+		fprintf(stderr, "FATAL: %s\n", msg);
+		abort();
+	default:
+		break;
 	}
 }
 
 int main(int argc, char *argv[]) {
 	qInstallMsgHandler(myMessageOutput);
-	QCoreApplication a(argc, argv);
-	
-	Test test[10];
+	QCoreApplication a(argc, argv);	
+	Test test;
 	return a.exec();
 }

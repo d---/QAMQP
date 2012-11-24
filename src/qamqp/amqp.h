@@ -22,7 +22,7 @@ namespace QAMQP {
 		Q_PROPERTY(QString password READ password WRITE setPassword);
 		Q_PROPERTY(bool ssl READ isSsl WRITE setSsl);
 		Q_PROPERTY(bool autoReconnect READ autoReconnect WRITE setAutoReconnect);
-		Q_PROPERTY(bool connected READ isConnected );
+		Q_PROPERTY(bool connected READ isConnected);
 
 		Q_DISABLE_COPY(Client)
 
