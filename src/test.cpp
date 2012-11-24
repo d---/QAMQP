@@ -2,8 +2,7 @@
 #include <QTime>
 #include <QFile>
 
-Test::Test()
-{
+Test::Test() {
 	QUrl con(QString("amqp://guest:guest@localhost:5672/"));
 	client_ = new QAMQP::Client(this);
 	client_->open(con);
@@ -25,16 +24,13 @@ Test::Test()
 	connect(queue2_, SIGNAL(messageRecieved()), this, SLOT(newMessage()));
 }
 
-Test::~Test()
-{
+Test::~Test() {
 
 }
 
-void Test::declared()
-{
+void Test::declared() {
 	qDebug("\t-= Ready =-");
-	//queue_->purge();
-
+	
 	QAMQP::Exchange::MessageProperties properties;
 	properties[QAMQP::Frame::Content::cpDeliveryMode] = 2; // Make message persistent
 	exchange_->publish("123", exchange_->name(), properties);
@@ -43,32 +39,22 @@ void Test::declared()
 	queue_->setQOS(0,10);
 	queue_->setConsumerTag("qamqp-consumer");
 	queue_->consume(QAMQP::Queue::coNoAck);
-	//queue_->setNoAck(false);
-	//queue_->get();
-
 
 	queue2_->setQOS(0,10);
 	queue2_->setConsumerTag("qamqp-consumer2");
 	queue2_->consume(QAMQP::Queue::coNoAck);
-
-	//exchange_->remove(false, false);
 }
 
-void Test::newMessage()
-{
+void Test::newMessage() {
 	QAMQP::Queue * q = qobject_cast<QAMQP::Queue *>(sender());
-	while (q->hasMessage())
-	{
+	while (q->hasMessage()) {
 		QAMQP::MessagePtr message = q->getMessage();
 		qDebug("+ RECEIVE MESSAGE");
 		qDebug("| Exchange-name: %s", qPrintable(message->exchangeName));
 		qDebug("| Routing-key: %s", qPrintable(message->routeKey));
 		qDebug("| Content-type: %s", qPrintable(message->property[QAMQP::Frame::Content::cpContentType].toString()));
-		if(!q->noAck())
-		{
+		if(!q->noAck()) {
 			q->ack(message);
 		}
-
 	}
-
 }

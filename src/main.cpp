@@ -1,16 +1,12 @@
-
 #include <stdio.h>
 
 #include <QtCore/QCoreApplication>
 #include "test.h"
 
-void myMessageOutput(QtMsgType type, const char *msg)
-{
+void myMessageOutput(QtMsgType type, const char *msg) {
 	switch (type) {
 	 case QtDebugMsg:
-
 		 fprintf(stderr, "# %s\n", msg);
-
 		 break;
 	 case QtWarningMsg:
 		 fprintf(stderr, "%s\n", msg);

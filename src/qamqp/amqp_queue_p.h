@@ -8,13 +8,13 @@
 namespace QAMQP
 {
 	using namespace QAMQP::Frame;
-	class QueuePrivate: public ChannelPrivate
+	class QueuePrivate
+		: public ChannelPrivate
 	{
 		P_DECLARE_PUBLIC(QAMQP::Queue)
-	public:
 
-		enum MethodId
-		{
+	public:
+		enum MethodId {
 			METHOD_ID_ENUM(miDeclare, 10),
 			METHOD_ID_ENUM(miBind, 20),
 			METHOD_ID_ENUM(miUnbind, 50),

@@ -6,16 +6,15 @@
 
 #define METHOD_ID_ENUM(name, id) name = id, name ## Ok
 
-namespace QAMQP
-{
+namespace QAMQP {
 	class Client;
 	class ClientPrivate;
-	class ChannelPrivate 
-	{
+
+	class ChannelPrivate {
 		P_DECLARE_PUBLIC(QAMQP::Channel)
+
 	public:
-		enum MethodId
-		{
+		enum MethodId {
 			METHOD_ID_ENUM(miOpen, 10),
 			METHOD_ID_ENUM(miFlow, 20),
 			METHOD_ID_ENUM(miClose, 40)
@@ -28,8 +27,7 @@ namespace QAMQP
 			csRunning
 		};
 
-		enum BasicMethod
-		{
+		enum BasicMethod {
 			METHOD_ID_ENUM(bmQos, 10),
 			METHOD_ID_ENUM(bmConsume, 20),
 			METHOD_ID_ENUM(bmCancel, 30),
@@ -44,31 +42,29 @@ namespace QAMQP
 			METHOD_ID_ENUM(bmRecover, 110)
 		};
 
-		ChannelPrivate(Channel * q);
+		ChannelPrivate(Channel *q);
 		virtual ~ChannelPrivate();
 
-		void init(int channelNumber, Client * parent);
+		void init(int channelNumber, Client *parent);
 
 		void open();
 		void flow();
 		void flowOk();
-		void close(int code, const QString & text, int classId, int methodId);
+		void close(int code, const QString &text, int classId, int methodId);
 		void closeOk();
 
-		//////////////////////////////////////////////////////////////////////////
+		void openOk(const QAMQP::Frame::Method &frame);
+		void flow(const QAMQP::Frame::Method &frame);
+		void flowOk(const QAMQP::Frame::Method &frame);
+		void close(const QAMQP::Frame::Method &frame);
+		void closeOk(const QAMQP::Frame::Method &frame);
 
-		void openOk(const QAMQP::Frame::Method & frame);
-		void flow(const QAMQP::Frame::Method & frame);
-		void flowOk(const QAMQP::Frame::Method & frame);
-		void close(const QAMQP::Frame::Method & frame);
-		void closeOk(const QAMQP::Frame::Method & frame);
-
-		virtual bool _q_method(const QAMQP::Frame::Method & frame);
+		virtual bool _q_method(const QAMQP::Frame::Method &frame);
 		virtual void _q_disconnected();
 		void _q_open();
 		
 		void setQOS(qint32 prefetchSize, quint16 prefetchCount);
-		void sendFrame(const QAMQP::Frame::Base & frame);
+		void sendFrame(const QAMQP::Frame::Base &frame);
 
 		QPointer<Client> client_;
 
@@ -79,7 +75,7 @@ namespace QAMQP
 		bool opened;
 		bool needOpen;
 
-		Channel * const pq_ptr;
+		Channel *const pq_ptr;
 	};
 }
 #endif // amqp_channel_p_h__

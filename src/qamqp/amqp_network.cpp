@@ -2,39 +2,34 @@
 #include <QDebug>
 #include <QTimer>
 
-QAMQP::Network::Network( QObject * parent /*= 0*/ ):QObject(parent)
+QAMQP::Network::Network(QObject *parent)
+	: QObject(parent)
+	, connect_(false)
+	, timeOut_(1000)
+	, offsetBuf(0)
+	, leftSize(0)
 {
-	qRegisterMetaType<QAMQP::Frame::Method>("QAMQP::Frame::Method");
-
-	
+	qRegisterMetaType<QAMQP::Frame::Method>("QAMQP::Frame::Method");	
 	buffer_ = new QBuffer(this);
-	offsetBuf = 0;
-	leftSize = 0;
-	timeOut_ = 1000;
-	connect_ = false;
-
 	buffer_->open(QIODevice::ReadWrite);
-
 	initSocket(false);
 }
 
-QAMQP::Network::~Network()
-{
+QAMQP::Network::~Network() {
 	disconnect();
 }
 
-void QAMQP::Network::connectTo( const QString & host, quint32 port )
-{
+void QAMQP::Network::connectTo(const QString &host, quint32 port) {
 	QString h(host);
 	int p(port);
 	connect_ = true;
-	if(host.isEmpty())
+	if (host.isEmpty()) {
 		h = lastHost_ ;
-	if(port == 0)
+	}
+	if (port == 0) {
 		p = lastPort_;
-
-	if (isSsl())
-	{
+	}
+	if (isSsl()) {
 		static_cast<QSslSocket *>(socket_.data())->connectToHostEncrypted(h, p);
 	} else {
 		socket_->connectToHost(h, p);
@@ -44,50 +39,42 @@ void QAMQP::Network::connectTo( const QString & host, quint32 port )
 	lastPort_ = p;	
 }
 
-void QAMQP::Network::disconnect()
-{
+void QAMQP::Network::disconnect() {
 	connect_ = false;
-	if(socket_)
+	if (socket_) {
 		socket_->close();
+	}
 }
 
-void QAMQP::Network::error( QAbstractSocket::SocketError socketError )
-{
-	if(timeOut_ == 0)
-	{
+void QAMQP::Network::error(QAbstractSocket::SocketError socketError) {
+	if (timeOut_ == 0) {
 		timeOut_ = 1000;
 	} else {		
-		if(timeOut_ < 120000)
-		{
+		if(timeOut_ < 120000) {
 			timeOut_ *= 5;
 		}
 	}
 
 	Q_UNUSED(socketError);
-	switch(socketError)
-	{
+	switch(socketError) {
 		case QAbstractSocket::ConnectionRefusedError:
 		case QAbstractSocket::RemoteHostClosedError:
 		case QAbstractSocket::SocketTimeoutError:
 		case QAbstractSocket::NetworkError:
 		case QAbstractSocket::ProxyConnectionClosedError:
 		case QAbstractSocket::ProxyConnectionRefusedError:
-		case QAbstractSocket::ProxyConnectionTimeoutError:
-			
+		case QAbstractSocket::ProxyConnectionTimeoutError:			
 		default:
 			qWarning() << "AMQP Socket Error: " << socket_->errorString();
 			break;
 	}
 
-	if( autoReconnect_ && connect_ )
-	{
+	if (autoReconnect_ && connect_) {
 		QTimer::singleShot(timeOut_, this, SLOT(connectTo()));
 	}
-
 }
 
-void QAMQP::Network::readyRead()
-{
+void QAMQP::Network::readyRead() {
 	QDataStream streamA(socket_);
 	QDataStream streamB(buffer_);
 	
@@ -95,15 +82,12 @@ void QAMQP::Network::readyRead()
 	Вычитать заголовок, поместить в буфер
 	вычитать весь фрейм, если фрейм вычитан то кинуть на разбор его
 	*/
-	while(!socket_->atEnd())
-	{
-		if(leftSize == 0) // Если ранее прочитан был весь фрейм, то читаем заголовок фрейма
-		{
+	while (!socket_->atEnd()) {
+		if (leftSize == 0) {// Если ранее прочитан был весь фрейм, то читаем заголовок фрейма
 			lastType_  = 0;
 			qint16 channel_  = 0;
 			leftSize  = 0;
 			offsetBuf = 0;
-
 			streamA >> lastType_;
 			streamB << lastType_;
 			streamA >> channel_;
@@ -112,17 +96,14 @@ void QAMQP::Network::readyRead()
 			streamB << leftSize;
 			leftSize++; // увеличим размер на 1, для захвата конца фрейма
 		}
-
 		QByteArray data_;
 		data_.resize(leftSize);
 		offsetBuf = streamA.readRawData(data_.data(), data_.size());
 		leftSize -= offsetBuf;
 		streamB.writeRawData(data_.data(), offsetBuf);
-		if(leftSize == 0)
-		{		
+		if (leftSize == 0) {
 			buffer_->reset();
-			switch(QAMQP::Frame::Type(lastType_))
-			{
+			switch (QAMQP::Frame::Type(lastType_)) {
 			case QAMQP::Frame::ftMethod:
 				{
 					QAMQP::Frame::Method frame(streamB);
@@ -149,75 +130,60 @@ void QAMQP::Network::readyRead()
 	}
 }
 
-void QAMQP::Network::sendFrame( const QAMQP::Frame::Base & frame )
-{
-	if(socket_->state() == QAbstractSocket::ConnectedState)	
-	{
+void QAMQP::Network::sendFrame(const QAMQP::Frame::Base &frame) {
+	if (socket_->state() == QAbstractSocket::ConnectedState)	{
 		QDataStream stream(socket_);
 		frame.toStream(stream);
 	}
 }
 
-bool QAMQP::Network::isSsl() const
-{
+bool QAMQP::Network::isSsl() const {
 	return QString(socket_->metaObject()->className()).compare( "QSslSocket", Qt::CaseInsensitive) == 0;
 }
 
-void QAMQP::Network::setSsl( bool value )
-{
+void QAMQP::Network::setSsl(bool value) {
 	initSocket(value);
 }
 
-void QAMQP::Network::initSocket( bool ssl /*= false*/ )
-{
-	if(socket_)
+void QAMQP::Network::initSocket(bool ssl) {
+	if (socket_) {
 		delete socket_;
-
-	if(ssl)
-	{		
+	}
+	if (ssl) {
 		socket_ = new QSslSocket(this);
 		QSslSocket * ssl_= static_cast<QSslSocket*> (socket_.data());
 		ssl_->setProtocol(QSsl::AnyProtocol);
-		connect(socket_, SIGNAL(sslErrors(const QList<QSslError> &)),
-			this, SLOT(sslErrors(const QList<QSslError> &)));	
-
-		//connect(socket_, SIGNAL(encrypted()), this, SLOT(conectionReady()));
+		connect(socket_, SIGNAL(sslErrors(const QList<QSslError> &)), this, SLOT(sslErrors(const QList<QSslError> &)));	
 		connect(socket_, SIGNAL(connected()), this, SLOT(conectionReady()));
 	} else {
 		socket_ = new QTcpSocket(this);		
 		connect(socket_, SIGNAL(connected()), this, SLOT(conectionReady()));
 	}
-	
 	connect(socket_, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
 	connect(socket_, SIGNAL(readyRead()), this, SLOT(readyRead()));
 	connect(socket_, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)));	
 }
 
-void QAMQP::Network::sslErrors( const QList<QSslError> & errors )
-{
+void QAMQP::Network::sslErrors(const QList<QSslError> &errors) {
 	Q_UNUSED(errors);
 	static_cast<QSslSocket*>(socket_.data())->ignoreSslErrors();
 }
 
-void QAMQP::Network::conectionReady()
-{
+void QAMQP::Network::conectionReady() {
 	emit connected();
 	timeOut_ = 0;
-	char header_[8] = {'A', 'M', 'Q', 'P', 0,0,9,1};
+	char header_[8] = {'A', 'M', 'Q', 'P', 0, 0, 9, 1};
 	socket_->write(header_, 8);
 }
 
-bool QAMQP::Network::autoReconnect() const
-{
+bool QAMQP::Network::autoReconnect() const {
 	return autoReconnect_;
 }
 
-void QAMQP::Network::setAutoReconnect( bool value )
-{
+void QAMQP::Network::setAutoReconnect(bool value) {
 	autoReconnect_ = value;
 }
 
-QAbstractSocket::SocketState QAMQP::Network::state() const
-{
+QAbstractSocket::SocketState QAMQP::Network::state() const {
 	return socket_->state();
 }

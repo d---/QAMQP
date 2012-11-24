@@ -5,16 +5,15 @@
 
 #include <QPointer>
 
-namespace QAMQP
-{
+namespace QAMQP {
 	class Client;
 	class ClientPrivate;
-	class ConnectionPrivate
-	{
+	class ConnectionPrivate	{
+
 		P_DECLARE_PUBLIC(QAMQP::Connection)
+
 	public:
-		enum MethodId
-		{
+		enum MethodId {
 			METHOD_ID_ENUM(miStart, 10),
 			METHOD_ID_ENUM(miSecure, 20),
 			METHOD_ID_ENUM(miTune, 30),
@@ -46,10 +45,9 @@ namespace QAMQP
 		bool closed_;
 		bool connected;
 
-		Connection * const pq_ptr;
+		Connection *const pq_ptr;
 
 		QAMQP::Frame::TableField customProperty;
-
 	};
 }
 #endif // amqp_connection_p_h__

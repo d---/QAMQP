@@ -3,20 +3,18 @@
 #include <QHash>
 #include <QSharedPointer>
 
-namespace QAMQP
-{
-	struct Message
-	{		
-		Message()
-		{
+namespace QAMQP {
+	struct Message {		
+		Message() {
 			qDebug("Message create");
 			leftSize = 0;
 			deliveryTag = 0;
 		}
-		~Message()
-		{
+
+		~Message() {
 			qDebug("Message release");
 		}
+
 		typedef QAMQP::Frame::Content::Property MessageProperty;
 		Q_DECLARE_FLAGS(MessageProperties, MessageProperty);
 		

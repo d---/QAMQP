@@ -4,13 +4,13 @@
 #include "amqp_channel.h"
 #include "amqp_message.h"
 
-namespace QAMQP
-{
+namespace QAMQP {
 	class Client;
 	class ClientPrivate;
 	class Exchange;
 	class QueuePrivate;
-	class Queue : public Channel
+	class Queue 
+		: public Channel 
 	{
 		Q_OBJECT
 		Queue(int channelNumber = -1, Client * parent = 0);
@@ -85,7 +85,9 @@ namespace QAMQP
 		Q_PRIVATE_SLOT(pd_func(), void _q_body(int channeNumber, const QByteArray & body))
 	};
 }
+
 #ifdef QAMQP_P_INCLUDE
 # include "amqp_queue_p.h"
 #endif
+
 #endif // amqp_queue_h__

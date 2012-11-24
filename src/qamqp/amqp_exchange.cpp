@@ -10,143 +10,111 @@ using namespace QAMQP::Frame;
 #include <QDataStream>
 
 
-namespace QAMQP
-{
-	struct ExchangeExceptionCleaner
-	{
+namespace QAMQP {
+	struct ExchangeExceptionCleaner {
 		/* this cleans up when the constructor throws an exception */
-		static inline void cleanup(Exchange *that, ExchangePrivate *d)
-		{
-#ifdef QT_NO_EXCEPTIONS
-			Q_UNUSED(that);
-			Q_UNUSED(d);
-#else
-			Q_UNUSED(that);
-			Q_UNUSED(d);	
-#endif
+		static inline void cleanup(Exchange *that, ExchangePrivate *d) {
+			//
 		}
-	};	
-
-
+	};
 }
 
-Exchange::Exchange(int channelNumber, Client * parent /*= 0*/ )
-: Channel(new ExchangePrivate(this))
+Exchange::Exchange(int channelNumber, Client *parent)
+	: Channel(new ExchangePrivate(this))
 {
 	QT_TRY {
 		pd_func()->init(channelNumber, parent);
-	} QT_CATCH(...) {
+	} QT_CATCH (...) {
 		ExchangeExceptionCleaner::cleanup(this, pd_func());
 		QT_RETHROW;
 	}
 }
 
-Exchange::~Exchange()
-{
+Exchange::~Exchange() {
 	remove();
 }
 
-void Exchange::onOpen()
-{
+void Exchange::onOpen() {
 	P_D(Exchange);
-	if(d->deleyedDeclare)
-	{
+	if (d->deleyedDeclare) {
 		d->declare();
 	}
 }
 
-void Exchange::onClose()
-{
+void Exchange::onClose() {
 	pd_func()->remove(true, true);
 }
 
-Exchange::ExchangeOptions Exchange::option() const
-{
+Exchange::ExchangeOptions Exchange::option() const {
 	return pd_func()->options;
 }
 
-QString Exchange::type() const
-{
+QString Exchange::type() const {
 	return pd_func()->type;
 }
 
-
-void Exchange::declare(const QString &type, ExchangeOptions option ,  const TableField & arg)
-{
+void Exchange::declare(const QString &type, ExchangeOptions option ,const TableField &arg) {
 	P_D(Exchange);
-	d->options = option;	
+	d->options = option;
 	d->type = type;
 	d->arguments = arg;
 	d->declare();
 }
 
-void Exchange::remove( bool ifUnused /*= true*/, bool noWait /*= true*/ )
-{
+void Exchange::remove(bool ifUnused, bool noWait) {
 	pd_func()->remove(ifUnused, noWait);
 }
 
-
-void Exchange::bind( QAMQP::Queue * queue )
-{
+void Exchange::bind(QAMQP::Queue *queue) {
 	queue->bind(this, pd_func()->name);
 }
 
-void Exchange::bind( const QString & queueName )
-{	
+void Exchange::bind(const QString &queueName) {
 	Q_UNUSED(queueName);
 	qWarning("Not implement");
 }
 
-void Exchange::bind( const QString & queueName, const QString &key )
-{
+void Exchange::bind(const QString &queueName, const QString &key) {
 	Q_UNUSED(queueName);
 	Q_UNUSED(key);
 	qWarning("Not implement");
 }
 
-void Exchange::publish( const QString & message, const QString & key, const MessageProperties &prop )
-{
+void Exchange::publish(const QString &message, const QString &key, const MessageProperties &prop) {
 	pd_func()->publish(message.toUtf8(), key, QString::fromLatin1("text.plain"), QVariantHash(), prop);
 }
 
-
-void Exchange::publish( const QByteArray & message, const QString & key, const QString &mimeType, const MessageProperties &prop )
-{
+void Exchange::publish(const QByteArray &message, const QString &key, const QString &mimeType, const MessageProperties &prop) {
 	pd_func()->publish(message, key, mimeType, QVariantHash(), prop);
 }
 
-void Exchange::publish( const QByteArray & message, const QString & key, const QVariantHash &headers, const QString &mimeType, const MessageProperties &prop )
-{
+void Exchange::publish(const QByteArray &message, const QString &key, const QVariantHash &headers, const QString &mimeType, const MessageProperties &prop) {
 	pd_func()->publish(message, key, mimeType, headers, prop);
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-
-ExchangePrivate::ExchangePrivate(Exchange * q)
-	:ChannelPrivate(q)
-	,  deleyedDeclare(false)
-	,  declared(false)
+ExchangePrivate::ExchangePrivate(Exchange *q)
+	: ChannelPrivate(q)
+	, deleyedDeclare(false)
+	, declared(false)
 {
+	//
 }
 
 
-ExchangePrivate::~ExchangePrivate()
-{
-
+ExchangePrivate::~ExchangePrivate() {
+	//
 }
 
 
-bool ExchangePrivate::_q_method( const QAMQP::Frame::Method & frame )
-{
-	if(ChannelPrivate::_q_method(frame))
+bool ExchangePrivate::_q_method(const QAMQP::Frame::Method &frame) {
+	if (ChannelPrivate::_q_method(frame)) {
 		return true;
+	}
 
-	if(frame.methodClass() != QAMQP::Frame::fcExchange)
+	if (frame.methodClass() != QAMQP::Frame::fcExchange) {
 		return false;
-
-	switch(frame.id())
-	{
+	}
+	switch(frame.id()) {
 	case miDeclareOk:
 		declareOk(frame);
 		break;
@@ -159,37 +127,33 @@ bool ExchangePrivate::_q_method( const QAMQP::Frame::Method & frame )
 	return true;
 }
 
-void ExchangePrivate::declareOk( const QAMQP::Frame::Method &  )
-{
-	qDebug() << "Declared exchange: " << name;	
+void ExchangePrivate::declareOk(const QAMQP::Frame::Method &) {
+	qDebug() << "Declared exchange: " << name;
 	declared = true;
 	QMetaObject::invokeMethod(pq_func(), "declared");
 }
 
-void ExchangePrivate::deleteOk( const QAMQP::Frame::Method &  )
-{
-	qDebug() << "Deleted exchange: " << name;	
+void ExchangePrivate::deleteOk(const QAMQP::Frame::Method &) {
+	qDebug() << "Deleted exchange: " << name;
 	declared = false;
 	QMetaObject::invokeMethod(pq_func(), "removed");
 }
 
-void ExchangePrivate::declare( )
-{
-	if(!opened)
-	{
+void ExchangePrivate::declare( ) {
+	if (!opened) {
 		deleyedDeclare = true;
 		return;
 	}
 
-	if(name.isEmpty())
+	if (name.isEmpty()) {
 		return;
-
+	}
 	QAMQP::Frame::Method frame(QAMQP::Frame::fcExchange, miDeclare);
 	frame.setChannel(number);
 	QByteArray arguments_;
 	QDataStream stream(&arguments_, QIODevice::WriteOnly);
 
-	stream << qint16(0); //reserver 1
+	stream << qint16(0);
 	writeField('s', stream, name);
 	writeField('s', stream, type);
 	stream << qint8(options);
@@ -200,8 +164,7 @@ void ExchangePrivate::declare( )
 	deleyedDeclare = false;
 }
 
-void ExchangePrivate::remove( bool ifUnused /*= true*/, bool noWait /*= true*/ )
-{
+void ExchangePrivate::remove(bool ifUnused, bool noWait) {
 	QAMQP::Frame::Method frame(QAMQP::Frame::fcExchange, miDelete);
 	frame.setChannel(number);
 	QByteArray arguments_;
@@ -221,21 +184,25 @@ void ExchangePrivate::remove( bool ifUnused /*= true*/, bool noWait /*= true*/ )
 	sendFrame(frame);
 }
 
-void ExchangePrivate::publish( const QByteArray & message, const QString & key, const QString &mimeType /*= QString::fromLatin1("text/plain")*/, const QVariantHash & headers, const Exchange::MessageProperties & prop )
-{
+void ExchangePrivate::publish(
+	const QByteArray &message,
+	const QString &key,
+	const QString &mimeType,
+	const QVariantHash &headers,
+	const Exchange::MessageProperties &prop
+	) {
 	QAMQP::Frame::Method frame(QAMQP::Frame::fcBasic, bmPublish);
 	frame.setChannel(number);
 	QByteArray arguments_;
 	QDataStream out(&arguments_, QIODevice::WriteOnly);
 
-	out << qint16(0); //reserver 1
+	out << qint16(0);
 	writeField('s', out, name);
 	writeField('s', out, key);
 	out << qint8(0); 
 
 	frame.setArguments(arguments_);
 	sendFrame(frame);	
-
 	
 	QAMQP::Frame::Content content(QAMQP::Frame::fcBasic);
 	content.setChannel(number);
@@ -245,30 +212,23 @@ void ExchangePrivate::publish( const QByteArray & message, const QString & key, 
 	content.setProperty(Content::cpMessageId, "0");	
 
 	Exchange::MessageProperties::ConstIterator i;
-
-	for(i = prop.begin(); i != prop.end(); ++i)
-	{
+	for (i = prop.begin(); i != prop.end(); ++i) {
 		content.setProperty(i.key(), i.value());	
 	}
-
 	content.setBody(message);
 	sendFrame(content);
 	
 	int fullSize = message.size();
-	for (int sended_ = 0; sended_ < fullSize; sended_+= (FRAME_MAX - 7))
-	{
+	for (int sended_ = 0; sended_ < fullSize; sended_ += (FRAME_MAX - 7)) {
 		QAMQP::Frame::ContentBody body;
 		QByteArray partition_ = message.mid(sended_, (FRAME_MAX - 7));
 		body.setChannel(number);
 		body.setBody(partition_);
 		sendFrame(body);
 	}
-	
 }
 
-
-void ExchangePrivate::_q_disconnected()
-{
+void ExchangePrivate::_q_disconnected() {
 	ChannelPrivate::_q_disconnected();
 	qDebug() << "Exchange " << name << " disconnected";
 	deleyedDeclare = false;

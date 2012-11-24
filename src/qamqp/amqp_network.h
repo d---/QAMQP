@@ -9,12 +9,13 @@
 
 #include "amqp_frame.h"
 
-namespace QAMQP
-{
-	class Network : public QObject
+namespace QAMQP {
+	class Network
+		: public QObject
 	{
 		Q_OBJECT
 		Q_DISABLE_COPY(Network)
+	
 	public:
 		Network(QObject * parent = 0);
 		~Network();

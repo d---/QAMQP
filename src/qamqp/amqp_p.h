@@ -8,16 +8,13 @@
 #include "amqp_connection.h"
 #include "amqp_authenticator.h"
 
-namespace QAMQP
-{
-	class ClientPrivate
-	{
+namespace QAMQP {
+	class ClientPrivate {
 		P_DECLARE_PUBLIC(QAMQP::Client)
 
 	public:
 		ClientPrivate(Client * q ) ;
 		~ClientPrivate();
-
 
 		void init(QObject * parent);
 		void init(QObject * parent, const QUrl & connectionString);
@@ -40,12 +37,7 @@ namespace QAMQP
 		QSharedPointer<Authenticator> auth_;
 
 		bool isSSl() const;
-
-		
-
 		Client * const pq_ptr;
-
 	};
-
 }
 #endif // amqp_p_h__

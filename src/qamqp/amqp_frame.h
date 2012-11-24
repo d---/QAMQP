@@ -24,20 +24,17 @@
 Library namespace
 @namespace QAMQP
 */
-namespace QAMQP
-{
+namespace QAMQP {
 	class QueuePrivate;
 	/*!
 	Frame namespace
 	@namespace Frame
 	*/
-	namespace Frame
-	{
+	namespace Frame {
 		/*!
 		@brief Frame type
 		*/
-		enum Type
-		{
+		enum Type {
 			ftMethod = 1, /*!< Used define method frame */
 			ftHeader = 2, /*!< Used define content header frame */
 			ftBody = 3,   /*!< Used define content body frame */
@@ -48,8 +45,7 @@ namespace QAMQP
 		@brief Frame method class
 		@enum MethodClass
 		*/
-		enum MethodClass
-		{
+		enum MethodClass {
 			fcConnection = 10, /*!< Define class of methods related to connection  */
 			fcChannel = 20,  /*!< Define class of methods related to channel  */
 			fcExchange = 40, /*!< Define class of methods related to exchange  */
@@ -58,11 +54,9 @@ namespace QAMQP
 			fcTx = 90,
 		};
 
-		struct decimal
-		{
+		struct decimal {
 			qint8 scale;
 			quint32 value;
-
 		};
 
 		/*!
@@ -72,12 +66,12 @@ namespace QAMQP
 		*/
 		typedef QHash<QString, QVariant> TableField;
 
-		QDataStream & serialize( QDataStream & stream, const QAMQP::Frame::TableField & f );
-		QDataStream & deserialize( QDataStream & stream, QAMQP::Frame::TableField & f );
-		QVariant readField( qint8 valueType, QDataStream &s );
-		void writeField( QDataStream &s, const QVariant & value );
-		void writeField( qint8 valueType, QDataStream &s, const QVariant & value, bool withType = false );
-		void print( const QAMQP::Frame::TableField & f );
+		QDataStream &serialize(QDataStream &stream, const QAMQP::Frame::TableField &f);
+		QDataStream &deserialize(QDataStream &stream, QAMQP::Frame::TableField &f);
+		QVariant readField(qint8 valueType, QDataStream &s);
+		void writeField(QDataStream &s, const QVariant &value);
+		void writeField(qint8 valueType, QDataStream &s, const QVariant &value, bool withType = false);
+		void print(const QAMQP::Frame::TableField &f);
 
 		/*!
 		@brief Base class for any frames.
@@ -92,8 +86,7 @@ namespace QAMQP
 		@endcode
 		octet short long 'size' octets octet
 		*/			
-		class Base
-		{
+		class Base {
 		public:
 			/*!
 			Base class constructor.
@@ -259,16 +252,17 @@ namespace QAMQP
 		@sa property
 
 		*/
-		class Content : public Base
+		class Content
+			: public Base
 		{
 			friend class QAMQP::QueuePrivate;
+
 		public:
 
 			/*! Default content frame property
 			
 			*/
-			enum Property
-			{
+			enum Property {
 				cpContentType = AMQP_BASIC_CONTENT_TYPE_FLAG,
 				cpContentEncoding = AMQP_BASIC_CONTENT_ENCODING_FLAG,
 				cpHeaders = AMQP_BASIC_HEADERS_FLAG,
@@ -341,7 +335,8 @@ namespace QAMQP
 			qlonglong bodySize_;
 		};
 
-		class ContentBody : public Base
+		class ContentBody
+			: public Base
 		{
 		public:
 			ContentBody();

@@ -5,31 +5,30 @@
 #include "amqp_frame.h"
 #include "amqp_global.h"
 
-namespace QAMQP
-{
+namespace QAMQP {
 	class ConnectionPrivate;
 	class ChannelPrivate;
 	class ClientPrivate;
 	class Client;
-	class Connection : public QObject
+	class Connection
+		: public QObject
 	{
 		Q_OBJECT
 		P_DECLARE_PRIVATE(QAMQP::Connection)
 		Q_DISABLE_COPY(Connection)
-		Connection(Client * parent = 0);
-	public:		
+		Connection(Client *parent = 0);
+
+	public:
 		~Connection();
-
-
-		void addCustomProperty(const QString & name, const QString & value);
-		QString customProperty(const QString & name) const;
+		void addCustomProperty(const QString &name, const QString &value);
+		QString customProperty(const QString &name) const;
 
 		void startOk();
 		void secureOk();
 		void tuneOk();
 		void open();
-		void close(int code, const QString & text, int classId = 0, int methodId = 0);
-		void closeOk();	
+		void close(int code, const QString &text, int classId = 0, int methodId = 0);
+		void closeOk();
 
 		bool isConnected() const;
 
@@ -38,14 +37,15 @@ namespace QAMQP
 	Q_SIGNALS:
 		void disconnected();
 		void connected();
+
 	protected:
-		ConnectionPrivate * const pd_ptr;
+		ConnectionPrivate *const pd_ptr;
 
 	private:
 		void openOk();
 		friend class ClientPrivate;
 		friend class ChannelPrivate;
-		Q_PRIVATE_SLOT(pd_func(), void _q_method(const QAMQP::Frame::Method & frame))
+		Q_PRIVATE_SLOT(pd_func(), void _q_method(const QAMQP::Frame::Method &frame))
 	};
 }
 

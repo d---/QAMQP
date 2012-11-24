@@ -4,7 +4,8 @@
 #include "qamqp/amqp_queue.h"
 #include <QPointer>
 
-class Test : public QObject
+class Test
+	: public QObject
 {
 	Q_OBJECT
 	
@@ -13,6 +14,7 @@ public:
 	~Test();
 
 	Q_INVOKABLE void test() {};
+
 private slots:
 
 	void declared();
