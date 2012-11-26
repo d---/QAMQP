@@ -293,29 +293,29 @@ namespace QAMQP {
 			*/
 			Content(MethodClass methodClass);
 
-			/*!
-			Content class constructor.
-			@detailed Construct frame content header class for sending.
-			@param raw Data stream for reading source data.
+			/**
+			* Content class constructor.
+			* @detailed Construct frame content header class for sending.
+			* @param raw Data stream for reading source data.
 			*/
 			Content(QDataStream& raw);
 
-			/*!
-			Method class type.
+			/**
+			* Method class type.
 			*/
 			MethodClass methodClass() const;
 			qint32 size() const;
 
-			/*!
-			Set default content header property
-			@param prop Any default content header property
-			@param value Associated data
+			/**
+			* Set default content header property
+			* @param prop Any default content header property
+			* @param value Associated data
 			*/
 			void setProperty(Property prop, const QVariant & value);
 
-			/*!
-			Return associated with property value
-			@param prop Any default content header property
+			/**
+			* Return associated with property value
+			* @param prop Any default content header property
 			*/
 			QVariant property(Property prop) const;
 
